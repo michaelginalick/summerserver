@@ -5,6 +5,9 @@ import(
 	"net/http"
 	"github.com/PuerkitoBio/goquery"
 	"log"
+	"strings"
+	"./calendar"
+	"errors"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
@@ -24,7 +27,8 @@ func scrapeEventPage() {
 	
   if err != nil {
     log.Fatal(err)
-  }
+	}
+	
 	defer res.Body.Close()
 	
   if res.StatusCode != 200 {
@@ -44,14 +48,20 @@ func scrapeEventPage() {
 		link, _ := s.Find("a").Attr("href")
 		date := s.Text()
 
-		newEvent := &event{name, link, date, nil }
+		month, err := extractMonthDate(date)
+		
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		newEvent := &event{name, link, month, nil }
 
 		eventList = addBeginning(newEvent, eventList)
 	})
 	
 	res.Body.Close()
 
-	printList(eventList)
+	// printList(eventList)
 }
 
 func main() {
@@ -66,6 +76,34 @@ func addBeginning(newEvent, eventList *event) *event {
 
 func printList(eventList *event) {
 	for i := eventList; i != nil; i = i.next {
-		fmt.Println(i.name, i.date)
+		fmt.Println(i.name, i.date, i.link)
 	}
+}
+
+
+func extractMonthDate(s string) (string, error) {
+	parseDate := strings.Fields(s)
+
+	for i := 0; i < len(parseDate); i++ {
+
+		monthValue := calendar.GetMonth(parseDate[i])
+
+		if monthValue != "" {
+			extractDays(parseDate, i+1)
+			return monthValue, nil
+		}
+	}
+	return "", errors.New("No date is listed with this event")
+}
+
+
+func extractDays(s []string, i int) {
+	
+	x := ""
+	for j := i; j < len(s); j++ {
+		x += " "
+		x += string(s[j])
+	}
+
+	fmt.Println(x)
 }

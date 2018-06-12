@@ -8,6 +8,8 @@ import(
 	"strings"
 	"./calendar"
 	"errors"
+	"regexp"
+	"strconv"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
@@ -16,7 +18,9 @@ const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
 type event struct {
 	name string
 	link string
-	date string
+	month string
+	days []string
+	length int
 	next *event
 }
 
@@ -48,20 +52,26 @@ func scrapeEventPage() {
 		link, _ := s.Find("a").Attr("href")
 		date := s.Text()
 
-		month, err := extractMonthDate(date)
-		
+		month, i, err := extractMonthDate(date)
+		days := extractDays(date, i)
+
+		//remove year
+		if len(days) > 0 {
+			days = days[:len(days)-1]
+		}
+
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		newEvent := &event{name, link, month, nil }
+		newEvent := &event{name, link, month, days, 5, nil }
 
 		eventList = addBeginning(newEvent, eventList)
 	})
 	
 	res.Body.Close()
 
-	// printList(eventList)
+	printList(eventList)
 }
 
 func main() {
@@ -76,34 +86,65 @@ func addBeginning(newEvent, eventList *event) *event {
 
 func printList(eventList *event) {
 	for i := eventList; i != nil; i = i.next {
-		fmt.Println(i.name, i.date, i.link)
+		fmt.Println(i.name, i.link, i.month, i.days)
 	}
 }
 
 
-func extractMonthDate(s string) (string, error) {
-	parseDate := strings.Fields(s)
+func extractMonthDate(s string) (string, int, error) {
+	parseDate := parseFields(s)
 
 	for i := 0; i < len(parseDate); i++ {
 
 		monthValue := calendar.GetMonth(parseDate[i])
 
 		if monthValue != "" {
-			extractDays(parseDate, i+1)
-			return monthValue, nil
+			return monthValue, i+1, nil
 		}
 	}
-	return "", errors.New("No date is listed with this event")
+	return "", 0, errors.New("No date is listed with this event")
 }
 
 
-func extractDays(s []string, i int) {
-	
+func extractDays(s string, i int) []string {
+	date := parseFields(s)
+
 	x := ""
-	for j := i; j < len(s); j++ {
+	for j := i; j < len(date); j++ {
 		x += " "
-		x += string(s[j])
+		x += string(date[j])
 	}
 
-	fmt.Println(x)
+	re := regexp.MustCompile("[0-9]+")
+	return re.FindAllString(x, -1)
+}
+
+
+func parseFields(s string) []string {
+	return strings.Fields(s)
+}
+
+//https://play.golang.org/p/BZdhROeZf2T
+
+func convInt(s string) (int, error) {
+	i, err := strconv.Atoi(s)
+	
+	if err != nil {
+		return 0, errors.New("cannot convert to integer")
+	}
+	
+	return i, nil
+}
+
+
+func getDays(firstInt, lastInt int) []int {
+	var s []int
+	
+	i := firstInt 
+	
+	for i <= lastInt {
+		s = append(s, i)
+		i++
+	}
+	return s
 }

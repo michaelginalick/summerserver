@@ -1,53 +1,51 @@
 package main
 
-import(
-	"fmt"
-	"net/http"
-	"github.com/PuerkitoBio/goquery"
-	"log"
-	"strings"
+import (
 	"./calendar"
 	"errors"
+	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"log"
+	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
 
-
 type event struct {
-	name string
-	link string
-	month string
-	days []string
+	name   string
+	link   string
+	month  string
+	days   []string
 	length int
-	next *event
+	next   *event
 }
 
-
 func scrapeEventPage() {
-  // Request the HTML page.
+	// Request the HTML page.
 	res, err := http.Get(link)
-	
-  if err != nil {
-    log.Fatal(err)
-	}
-	
-	defer res.Body.Close()
-	
-  if res.StatusCode != 200 {
-    log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-  }
 
-  // Load the HTML document
-  doc, err := goquery.NewDocumentFromReader(res.Body)
-  if err != nil {
-    log.Fatal(err)
-  }
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 	eventList := &event{}
 
-  // Find the events
-  doc.Find("h3").Each(func(i int, s *goquery.Selection) {
+	// Find the events
+	doc.Find("h3").Each(func(i int, s *goquery.Selection) {
 		name := s.Find("a").Text()
 		link, _ := s.Find("a").Attr("href")
 		date := s.Text()
@@ -64,18 +62,18 @@ func scrapeEventPage() {
 			fmt.Println(err)
 		}
 
-		newEvent := &event{name, link, month, days, 5, nil }
+		newEvent := &event{name, link, month, days, 5, nil}
 
 		eventList = addBeginning(newEvent, eventList)
 	})
-	
+
 	res.Body.Close()
 
 	printList(eventList)
 }
 
 func main() {
-  scrapeEventPage()
+	scrapeEventPage()
 }
 
 func addBeginning(newEvent, eventList *event) *event {
@@ -83,13 +81,11 @@ func addBeginning(newEvent, eventList *event) *event {
 	return newEvent
 }
 
-
 func printList(eventList *event) {
 	for i := eventList; i != nil; i = i.next {
 		fmt.Println(i.name, i.link, i.month, i.days)
 	}
 }
-
 
 func extractMonthDate(s string) (string, int, error) {
 	parseDate := parseFields(s)
@@ -99,12 +95,11 @@ func extractMonthDate(s string) (string, int, error) {
 		monthValue := calendar.GetMonth(parseDate[i])
 
 		if monthValue != "" {
-			return monthValue, i+1, nil
+			return monthValue, i + 1, nil
 		}
 	}
 	return "", 0, errors.New("No date is listed with this event")
 }
-
 
 func extractDays(s string, i int) []string {
 	date := parseFields(s)
@@ -119,7 +114,6 @@ func extractDays(s string, i int) []string {
 	return re.FindAllString(x, -1)
 }
 
-
 func parseFields(s string) []string {
 	return strings.Fields(s)
 }
@@ -128,20 +122,19 @@ func parseFields(s string) []string {
 
 func convInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)
-	
+
 	if err != nil {
 		return 0, errors.New("cannot convert to integer")
 	}
-	
+
 	return i, nil
 }
 
-
 func getDays(firstInt, lastInt int) []int {
 	var s []int
-	
-	i := firstInt 
-	
+
+	i := firstInt
+
 	for i <= lastInt {
 		s = append(s, i)
 		i++

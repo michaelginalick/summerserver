@@ -4,7 +4,6 @@ import (
 	"./calendar"
 	"./structs"
 	"errors"
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"log"
 	"net/http"
@@ -69,27 +68,17 @@ func scrapeEventPage() {
 
 		newEvent := &event.Event{name, link, month, days, individualDays, len(individualDays), nil}
 
-		eventList = addBeginning(newEvent, eventList)
+		eventList = event.AddBeginning(newEvent, eventList)
 	})
 
 	res.Body.Close()
 
-	printList(eventList)
-	printListByMonth(eventList, "July")
-	// saveEventListToDatabase()
+	event.PrintList(eventList)
+	event.PrintListByMonth(eventList, "July")
 }
 
 func main() {
 	scrapeEventPage()
-}
-
-
-func printListByMonth(e *event.Event, s string) {
-	for i:=e; i != nil; i = i.Next {
-		if i.Month == s {
-			fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
-		}
-	}
 }
 
 
@@ -100,8 +89,8 @@ func extractMonthDate(s string) (string, int, error) {
 
 		monthValue := calendar.GetMonth(parseDate[i])
 
-		if monthValue != "" {
-			return monthValue, i + 1, nil
+		if monthValue.Name != "" {
+			return monthValue.Name, i + 1, nil
 		}
 	}
 	return "", 0, errors.New("No date is listed with this event")
@@ -145,16 +134,4 @@ func getIndividualDays(firstInt, lastInt int) []int {
 		i++
 	}
 	return s
-}
-
-
-func addBeginning(newEvent, eventList *event.Event) *event.Event {
-	newEvent.Next = eventList
-	return newEvent
-}
-
-func printList(eventList *event.Event) {
-	for i := eventList; i != nil; i = i.Next {
-		fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
-	}
 }

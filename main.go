@@ -2,6 +2,7 @@ package main
 
 import (
 	"./calendar"
+	"./structs"
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
@@ -14,15 +15,6 @@ import (
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
 
-type event struct {
-	name   string
-	link   string
-	month  string
-	days   []string
-	individualDays []int
-	festivalLength int
-	next   *event
-}
 
 func scrapeEventPage() {
 	// Request the HTML page.
@@ -43,7 +35,8 @@ func scrapeEventPage() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	eventList := &event{}
+
+	eventList := &event.Event{}
 
 	// Find the events
 	doc.Find("h3").Each(func(i int, s *goquery.Selection) {
@@ -74,7 +67,7 @@ func scrapeEventPage() {
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event{name, link, month, days, individualDays, len(individualDays), nil}
+		newEvent := &event.Event{name, link, month, days, individualDays, len(individualDays), nil}
 
 		eventList = addBeginning(newEvent, eventList)
 	})
@@ -91,10 +84,10 @@ func main() {
 }
 
 
-func printListByMonth(e *event, s string) {
-	for i:=e; i != nil; i = i.next {
-		if i.month == s {
-			fmt.Println(i.name, i.link, i.month, i.days, i.individualDays)
+func printListByMonth(e *event.Event, s string) {
+	for i:=e; i != nil; i = i.Next {
+		if i.Month == s {
+			fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
 		}
 	}
 }
@@ -131,7 +124,6 @@ func parseFields(s string) []string {
 	return strings.Fields(s)
 }
 
-//https://play.golang.org/p/BZdhROeZf2T
 
 func convInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)
@@ -156,13 +148,13 @@ func getIndividualDays(firstInt, lastInt int) []int {
 }
 
 
-func addBeginning(newEvent, eventList *event) *event {
-	newEvent.next = eventList
+func addBeginning(newEvent, eventList *event.Event) *event.Event {
+	newEvent.Next = eventList
 	return newEvent
 }
 
-func printList(eventList *event) {
-	for i := eventList; i != nil; i = i.next {
-		fmt.Println(i.name, i.link, i.month, i.days, i.individualDays)
+func printList(eventList *event.Event) {
+	for i := eventList; i != nil; i = i.Next {
+		fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
 	}
 }

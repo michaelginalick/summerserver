@@ -19,7 +19,8 @@ type event struct {
 	link   string
 	month  string
 	days   []string
-	length int
+	individualDays []int
+	festivalLength int
 	next   *event
 }
 
@@ -49,9 +50,9 @@ func scrapeEventPage() {
 		name := s.Find("a").Text()
 		link, _ := s.Find("a").Attr("href")
 		date := s.Text()
-
 		month, i, err := extractMonthDate(date)
 		days := extractDays(date, i)
+		individualDays := make([]int, 0)
 
 		//remove year
 		if len(days) > 0 {
@@ -59,10 +60,21 @@ func scrapeEventPage() {
 		}
 
 		if err != nil {
-			fmt.Println(err)
+			log.Println("Requested item not found")
 		}
 
-		newEvent := &event{name, link, month, days, 5, nil}
+
+		if len(days) > 1 {
+			first := days[0]
+			last := days[len(days)-1]
+			
+			firstInt, _ := convInt(first)
+			lastInt, _ := convInt(last)
+			
+			individualDays = getIndividualDays(firstInt, lastInt)
+		}
+
+		newEvent := &event{name, link, month, days, individualDays, len(individualDays), nil}
 
 		eventList = addBeginning(newEvent, eventList)
 	})
@@ -70,22 +82,23 @@ func scrapeEventPage() {
 	res.Body.Close()
 
 	printList(eventList)
+	printListByMonth(eventList, "July")
+	// saveEventListToDatabase()
 }
 
 func main() {
 	scrapeEventPage()
 }
 
-func addBeginning(newEvent, eventList *event) *event {
-	newEvent.next = eventList
-	return newEvent
-}
 
-func printList(eventList *event) {
-	for i := eventList; i != nil; i = i.next {
-		fmt.Println(i.name, i.link, i.month, i.days)
+func printListByMonth(e *event, s string) {
+	for i:=e; i != nil; i = i.next {
+		if i.month == s {
+			fmt.Println(i.name, i.link, i.month, i.days, i.individualDays)
+		}
 	}
 }
+
 
 func extractMonthDate(s string) (string, int, error) {
 	parseDate := parseFields(s)
@@ -130,7 +143,7 @@ func convInt(s string) (int, error) {
 	return i, nil
 }
 
-func getDays(firstInt, lastInt int) []int {
+func getIndividualDays(firstInt, lastInt int) []int {
 	var s []int
 
 	i := firstInt
@@ -140,4 +153,16 @@ func getDays(firstInt, lastInt int) []int {
 		i++
 	}
 	return s
+}
+
+
+func addBeginning(newEvent, eventList *event) *event {
+	newEvent.next = eventList
+	return newEvent
+}
+
+func printList(eventList *event) {
+	for i := eventList; i != nil; i = i.next {
+		fmt.Println(i.name, i.link, i.month, i.days, i.individualDays)
+	}
 }

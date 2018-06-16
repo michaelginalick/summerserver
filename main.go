@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"./db"
+	_ "github.com/lib/pq"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
@@ -79,6 +81,7 @@ func scrapeEventPage() {
 
 func main() {
 	scrapeEventPage()
+	db.OpenDB()
 }
 
 

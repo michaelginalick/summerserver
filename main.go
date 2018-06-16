@@ -2,27 +2,20 @@ package main
 
 import (
 	"./calendar"
+	"./structs"
 	"errors"
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"./db"
+	_ "github.com/lib/pq"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
 
-type event struct {
-	name   string
-	link   string
-	month  string
-	days   []string
-	individualDays []int
-	festivalLength int
-	next   *event
-}
 
 func scrapeEventPage() {
 	// Request the HTML page.
@@ -43,7 +36,8 @@ func scrapeEventPage() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	eventList := &event{}
+
+	eventList := &event.Event{}
 
 	// Find the events
 	doc.Find("h3").Each(func(i int, s *goquery.Selection) {
@@ -74,29 +68,20 @@ func scrapeEventPage() {
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event{name, link, month, days, individualDays, len(individualDays), nil}
+		newEvent := &event.Event{name, link, month, days, individualDays, len(individualDays), nil}
 
-		eventList = addBeginning(newEvent, eventList)
+		eventList = event.AddBeginning(newEvent, eventList)
 	})
 
 	res.Body.Close()
 
-	printList(eventList)
-	printListByMonth(eventList, "July")
-	// saveEventListToDatabase()
+	event.PrintList(eventList)
+	event.PrintListByMonth(eventList, "July")
 }
 
 func main() {
 	scrapeEventPage()
-}
-
-
-func printListByMonth(e *event, s string) {
-	for i:=e; i != nil; i = i.next {
-		if i.month == s {
-			fmt.Println(i.name, i.link, i.month, i.days, i.individualDays)
-		}
-	}
+	db.OpenDB()
 }
 
 
@@ -107,8 +92,8 @@ func extractMonthDate(s string) (string, int, error) {
 
 		monthValue := calendar.GetMonth(parseDate[i])
 
-		if monthValue != "" {
-			return monthValue, i + 1, nil
+		if monthValue.Name != "" {
+			return monthValue.Name, i + 1, nil
 		}
 	}
 	return "", 0, errors.New("No date is listed with this event")
@@ -131,7 +116,6 @@ func parseFields(s string) []string {
 	return strings.Fields(s)
 }
 
-//https://play.golang.org/p/BZdhROeZf2T
 
 func convInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)
@@ -153,16 +137,4 @@ func getIndividualDays(firstInt, lastInt int) []int {
 		i++
 	}
 	return s
-}
-
-
-func addBeginning(newEvent, eventList *event) *event {
-	newEvent.next = eventList
-	return newEvent
-}
-
-func printList(eventList *event) {
-	for i := eventList; i != nil; i = i.next {
-		fmt.Println(i.name, i.link, i.month, i.days, i.individualDays)
-	}
 }

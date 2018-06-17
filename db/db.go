@@ -41,35 +41,33 @@ func SaveRecords(e *event.Event) {
 	defer db.Close()
 
 	for i := e; i != nil; i = i.Next {
-    if(!isPresent(i, db)) {
-		  _, err := db.Exec(
-        "INSERT INTO  events (name, link, month, days, individual_days, festival_length) VALUES ($1, $2, $3, $4, $5, $6)",
-        i.Name, i.Link, i.Month, pq.Array(i.Days), pq.Array(i.IndividualDays), i.FestivalLength,
-      )
-      checkErr(err)
-    }
+		if !isPresent(i, db) {
+			_, err := db.Exec(
+				"INSERT INTO  events (name, link, month, days, individual_days, festival_length) VALUES ($1, $2, $3, $4, $5, $6)",
+				i.Name, i.Link, i.Month, pq.Array(i.Days), pq.Array(i.IndividualDays), i.FestivalLength,
+			)
+			checkErr(err)
+		}
 	}
 	db.Close()
 }
 
+func isPresent(e *event.Event, db *sql.DB) (exists bool) {
 
-func isPresent(e *event.Event, db  *sql.DB) (exists bool) {
+	sqlStatement := `select exists(select 1 from events where name = $1);`
+	rows, err := db.Query(sqlStatement, e.Name)
 
-  sqlStatement := `select exists(select 1 from events where name = $1);`
-  rows, err := db.Query(sqlStatement, e.Name)
-  
-  checkErr(err)
+	checkErr(err)
 
-  for rows.Next() {
-    err := rows.Scan(&exists)
-    checkErr(err)
-  }
-  return exists
+	for rows.Next() {
+		err := rows.Scan(&exists)
+		checkErr(err)
+	}
+	return exists
 }
 
-
 func checkErr(err error) {
-  if err != nil {
-    panic(err)
-  }
+	if err != nil {
+		panic(err)
+	}
 }

@@ -59,12 +59,8 @@ func scrapeEventPage() {
 
 
 		if len(days) > 1 {
-			first := days[0]
-			last := days[len(days)-1]
-			
-			firstInt, _ := convInt(first)
-			lastInt, _ := convInt(last)
-			
+
+			firstInt, lastInt := firstAndLastElement(days)
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
 
@@ -75,13 +71,21 @@ func scrapeEventPage() {
 
 	res.Body.Close()
 
-	event.PrintList(eventList)
-	event.PrintListByMonth(eventList, "July")
+	db.SaveRecords(eventList)
 }
 
 func main() {
 	scrapeEventPage()
-	db.OpenDB()
+}
+
+func firstAndLastElement(days []string) (int, int) {
+	first := days[0]
+	last := days[len(days)-1]
+	
+	firstInt, _ := convInt(first)
+	lastInt, _ := convInt(last)
+
+	return firstInt, lastInt
 }
 
 

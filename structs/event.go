@@ -6,11 +6,12 @@ import(
 
 // Event : an event struct
 type Event struct {
+	ID		 int
 	Name   string
 	Link   string
 	Month  string
 	Days   []string
-	IndividualDays []int
+	IndividualDays []string
 	FestivalLength int
 	Next   *Event
 }

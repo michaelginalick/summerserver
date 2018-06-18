@@ -3,6 +3,7 @@ package main
 import (
 	"./calendar"
 	"./structs"
+	"./routes/api/v1"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"./db"
 	_ "github.com/lib/pq"
+	"github.com/gorilla/mux"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
@@ -48,7 +50,7 @@ func scrapeEventPage() {
 		days := extractDays(date, i)
 		individualDays := make([]int, 0)
 
-		//remove year
+		//remove year assuming this is for 2018
 		if len(days) > 0 {
 			days = days[:len(days)-1]
 		}
@@ -59,7 +61,6 @@ func scrapeEventPage() {
 
 
 		if len(days) > 1 {
-
 			firstInt, lastInt := firstAndLastElement(days)
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
@@ -75,7 +76,13 @@ func scrapeEventPage() {
 }
 
 func main() {
-	scrapeEventPage()
+	// scrapeEventPage()
+
+	router := mux.NewRouter()
+	router.HandleFunc("/events", eventsController.GetEvents).Methods("GET")
+
+	router.HandleFunc("/events/{id}", eventsController.GetEvent).Methods("GET")
+	router.HandleFunc("/events/{month}", eventsController.GetEventsByMonth).Methods("GET")
 }
 
 func firstAndLastElement(days []string) (int, int) {

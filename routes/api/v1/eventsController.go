@@ -1,6 +1,7 @@
 package eventsController
 
 import (
+	"database/sql"
 	"github.com/lib/pq"
 	"net/http"
 	"../../../db"
@@ -29,9 +30,38 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 	sqlStatement := `select id, name, link, month, days, individual_days, festival_length from events;`
 	rows, _ := db.Query(sqlStatement)
+	defer rows.Close()
+
+	
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+
+	formatAndReturnJSONResponse(rows, w)
+
+	db.Close()
+	return
+}
+
+
+// GetEvent : by event by id
+func GetEvent(w http.ResponseWriter, r *http.Request) {
+
+}
+
+
+// GetEventsByMonth : by events by month
+func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
+
+}
+
+
+func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 	events := []event.Event{}
 
-	defer rows.Close()
+
+
 	for rows.Next() {
 		event := event.Event{}
 		err := rows.Scan(
@@ -49,29 +79,11 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 		events = append(events, event)
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
 	out, err := json.Marshal(events)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-
+	
 	fmt.Fprintf(w, string(out))
-
-	db.Close()
-	return
-}
-
-
-// GetEvent : by event by id
-func GetEvent(w http.ResponseWriter, r *http.Request) {
-
-}
-
-
-// GetEventsByMonth : by events by month
-func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
-
 }

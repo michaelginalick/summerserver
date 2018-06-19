@@ -3,6 +3,7 @@ package main
 import (
 	"./calendar"
 	"./structs"
+	"./routes/api/v1"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"log"
@@ -12,6 +13,8 @@ import (
 	"strings"
 	"./db"
 	_ "github.com/lib/pq"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
@@ -46,9 +49,9 @@ func scrapeEventPage() {
 		date := s.Text()
 		month, i, err := extractMonthDate(date)
 		days := extractDays(date, i)
-		individualDays := make([]int, 0)
+		individualDays := make([]string, 0)
 
-		//remove year
+		//remove year assuming this is for 2018
 		if len(days) > 0 {
 			days = days[:len(days)-1]
 		}
@@ -59,12 +62,11 @@ func scrapeEventPage() {
 
 
 		if len(days) > 1 {
-
 			firstInt, lastInt := firstAndLastElement(days)
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event.Event{name, link, month, days, individualDays, len(individualDays), nil}
+		newEvent := &event.Event{0, name, link, month, days, individualDays, len(individualDays), nil}
 
 		eventList = event.AddBeginning(newEvent, eventList)
 	})
@@ -75,7 +77,16 @@ func scrapeEventPage() {
 }
 
 func main() {
-	scrapeEventPage()
+	// scrapeEventPage()
+
+	router := mux.NewRouter()
+	router.HandleFunc("/events", eventsController.GetEvents).Methods("GET")
+
+	router.HandleFunc("/events/{id}", eventsController.GetEventByID).Methods("GET")
+	router.HandleFunc("/eventsByMonth/{month}", eventsController.GetEventsByMonth).Methods("GET")
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"}) 
+	allowedMethods := handlers.AllowedMethods([]string{"GET"})
+	log.Fatal(http.ListenAndServe(":8000", handlers.CORS(allowedOrigins, allowedMethods)(router)))
 }
 
 func firstAndLastElement(days []string) (int, int) {
@@ -131,13 +142,14 @@ func convInt(s string) (int, error) {
 	return i, nil
 }
 
-func getIndividualDays(firstInt, lastInt int) []int {
-	var s []int
+func getIndividualDays(firstInt, lastInt int) []string {
+	var s []string
 
 	i := firstInt
 
 	for i <= lastInt {
-		s = append(s, i)
+		j := strconv.Itoa(i)
+		s = append(s, j)
 		i++
 	}
 	return s

@@ -108,7 +108,7 @@ func extractMonthDate(s string) (string, int, error) {
 		monthValue := calendar.GetMonth(parseDate[i])
 
 		if monthValue.Name != "" {
-			return monthValue.Name, i + 1, nil
+			return strings.ToLower(monthValue.Name), i + 1, nil
 		}
 	}
 	return "", 0, errors.New("No date is listed with this event")

@@ -82,10 +82,10 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/events", eventsController.GetEvents).Methods("GET")
 
-	router.HandleFunc("/events/{id}", eventsController.GetEvent).Methods("GET")
-	router.HandleFunc("/events/{month}", eventsController.GetEventsByMonth).Methods("GET")
+	router.HandleFunc("/events/{id}", eventsController.GetEventByID).Methods("GET")
+	router.HandleFunc("/eventsByMonth/{month}", eventsController.GetEventsByMonth).Methods("GET")
 	allowedOrigins := handlers.AllowedOrigins([]string{"*"}) 
-	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET"})
 	log.Fatal(http.ListenAndServe(":8000", handlers.CORS(allowedOrigins, allowedMethods)(router)))
 }
 

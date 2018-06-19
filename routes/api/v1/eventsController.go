@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"github.com/gorilla/mux"
 )
 
 func parseToIntSlice(e *[]int) *[]int {
@@ -28,39 +29,57 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select id, name, link, month, days, individual_days, festival_length from events;`
+	sqlStatement := `select * from events;`
 	rows, _ := db.Query(sqlStatement)
-	defer rows.Close()
 
-	
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
 
 	formatAndReturnJSONResponse(rows, w)
-
 	db.Close()
+	
 	return
 }
 
 
-// GetEvent : by event by id
-func GetEvent(w http.ResponseWriter, r *http.Request) {
+// GetEventByID : by event by id
+func GetEventByID(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
+	id := vars["id"]
+	db := db.OpenDB()
+	defer db.Close()
+	sqlStatement := `select * from events where id = $1;`
+	rows, _ := db.Query(sqlStatement, id)
+	formatAndReturnJSONResponse(rows, w)
+	db.Close()
+
+	return
 }
 
 
 // GetEventsByMonth : by events by month
 func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	month := vars["month"]
+	db := db.OpenDB()
+	defer db.Close()
+	sqlStatement := `select * from events where month=$1;`
+	rows, err := db.Query(sqlStatement, month)
 
+	if err != nil {
+		panic(err)
+	}
+
+	formatAndReturnJSONResponse(rows, w)
+	db.Close()
+
+	return
 }
 
 
 func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
+
+	defer rows.Close()
 	events := []event.Event{}
-
-
 
 	for rows.Next() {
 		event := event.Event{}
@@ -73,6 +92,7 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 			pq.Array(&event.IndividualDays),
 			&event.FestivalLength,
 		)
+
 		if err != nil {
 			panic(err)
 		}
@@ -84,6 +104,16 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	
+
+	rows.Close()
+
+	setHeaders(w)
 	fmt.Fprintf(w, string(out))
+}
+
+
+func setHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
 }

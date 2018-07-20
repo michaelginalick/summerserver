@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"../../../db"
-	"../../../structs"
-	"github.com/gorilla/mux"
 	"github.com/lib/pq"
+
+	"../../../webScrapper/db"
+	"../../../webScrapper/structs"
+	"github.com/gorilla/mux"
 )
 
 func parseToIntSlice(e *[]int) *[]int {

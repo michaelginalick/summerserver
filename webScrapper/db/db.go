@@ -43,8 +43,8 @@ func SaveRecords(e *event.Event) {
 	for i := e; i != nil; i = i.Next {
 		if !isPresent(i, db) {
 			_, err := db.Exec(
-				"INSERT INTO  events (name, link, month, days, individual_days, festival_length) VALUES ($1, $2, $3, $4, $5, $6)",
-				i.Name, i.Link, i.Month, pq.Array(i.Days), pq.Array(i.IndividualDays), i.FestivalLength,
+				"INSERT INTO  events (name, link, month, days, year, individual_days, festival_length) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+				i.Name, i.Link, i.Month, pq.Array(i.Days), i.Year, pq.Array(i.IndividualDays), i.FestivalLength,
 			)
 			checkErr(err)
 		}

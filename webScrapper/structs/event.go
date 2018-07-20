@@ -11,6 +11,7 @@ type Event struct {
 	Link           string
 	Month          string
 	Days           []string
+	Year					 string
 	IndividualDays []string
 	FestivalLength int
 	Next           *Event
@@ -25,7 +26,7 @@ func AddBeginning(newEvent, eventList *Event) *Event {
 // PrintList : print list one event at a time
 func PrintList(eventList *Event) {
 	for i := eventList; i != nil; i = i.Next {
-		fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
+		fmt.Println(i.Name, i.Link, i.Month, i.Days, i.Year, i.IndividualDays)
 	}
 }
 
@@ -33,7 +34,7 @@ func PrintList(eventList *Event) {
 func PrintListByMonth(e *Event, s string) {
 	for i := e; i != nil; i = i.Next {
 		if i.Month == s {
-			fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
+			fmt.Println(i.Name, i.Link, i.Month, i.Days, i.Year, i.IndividualDays)
 		}
 	}
 }

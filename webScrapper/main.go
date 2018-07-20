@@ -1,21 +1,21 @@
 package main
 
 import (
-	"./calendar"
-	"./structs"
 	"errors"
-	"github.com/PuerkitoBio/goquery"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"./calendar"
 	"./db"
+	"./structs"
+	"github.com/PuerkitoBio/goquery"
 	_ "github.com/lib/pq"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
-
 
 func scrapeEventPage() {
 	// Request the HTML page.
@@ -46,24 +46,24 @@ func scrapeEventPage() {
 		date := s.Text()
 		month, i, err := extractMonthDate(date)
 		days := extractDays(date, i)
+		year, _ := extractYear(days)
 		individualDays := make([]string, 0)
-
-		//remove year assuming this is for 2018
-		if len(days) > 0 {
-			days = days[:len(days)-1]
-		}
 
 		if err != nil {
 			log.Println("Requested item not found")
 		}
 
+		//remove year from days slice
+		if len(days) > 0 {
+			days = days[:len(days)-1]
+		}
 
 		if len(days) > 1 {
 			firstInt, lastInt := firstAndLastElement(days)
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event.Event{0, name, link, month, days, individualDays, len(individualDays), nil}
+		newEvent := &event.Event{0, name, link, month, days, year, individualDays, len(individualDays), nil}
 
 		eventList = event.AddBeginning(newEvent, eventList)
 	})
@@ -80,13 +80,12 @@ func main() {
 func firstAndLastElement(days []string) (int, int) {
 	first := days[0]
 	last := days[len(days)-1]
-	
+
 	firstInt, _ := convInt(first)
 	lastInt, _ := convInt(last)
 
 	return firstInt, lastInt
 }
-
 
 func extractMonthDate(s string) (string, int, error) {
 	parseDate := parseFields(s)
@@ -119,7 +118,6 @@ func parseFields(s string) []string {
 	return strings.Fields(s)
 }
 
-
 func convInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)
 
@@ -141,4 +139,12 @@ func getIndividualDays(firstInt, lastInt int) []string {
 		i++
 	}
 	return s
+}
+
+func extractYear(days []string) (string, error) {
+
+	if len(days) > 0 {
+		return days[len(days)-1], nil
+	}
+	return "", errors.New("cannot return year")
 }

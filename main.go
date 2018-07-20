@@ -1,24 +1,24 @@
 package main
 
 import (
-	"./calendar"
-	"./structs"
-	"./routes/api/v1"
 	"errors"
-	"github.com/PuerkitoBio/goquery"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"./calendar"
 	"./db"
-	_ "github.com/lib/pq"
-	"github.com/gorilla/mux"
+	"./routes/api/v1"
+	"./structs"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
-
 
 func scrapeEventPage() {
 	// Request the HTML page.
@@ -60,7 +60,6 @@ func scrapeEventPage() {
 			log.Println("Requested item not found")
 		}
 
-
 		if len(days) > 1 {
 			firstInt, lastInt := firstAndLastElement(days)
 			individualDays = getIndividualDays(firstInt, lastInt)
@@ -84,7 +83,7 @@ func main() {
 
 	router.HandleFunc("/events/{id}", eventsController.GetEventByID).Methods("GET")
 	router.HandleFunc("/eventsByMonth/{month}", eventsController.GetEventsByMonth).Methods("GET")
-	allowedOrigins := handlers.AllowedOrigins([]string{"*"}) 
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET"})
 	log.Fatal(http.ListenAndServe(":8000", handlers.CORS(allowedOrigins, allowedMethods)(router)))
 }
@@ -92,13 +91,12 @@ func main() {
 func firstAndLastElement(days []string) (int, int) {
 	first := days[0]
 	last := days[len(days)-1]
-	
+
 	firstInt, _ := convInt(first)
 	lastInt, _ := convInt(last)
 
 	return firstInt, lastInt
 }
-
 
 func extractMonthDate(s string) (string, int, error) {
 	parseDate := parseFields(s)
@@ -130,7 +128,6 @@ func extractDays(s string, i int) []string {
 func parseFields(s string) []string {
 	return strings.Fields(s)
 }
-
 
 func convInt(s string) (int, error) {
 	i, err := strconv.Atoi(s)

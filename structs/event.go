@@ -1,19 +1,19 @@
 package event
 
-import(
+import (
 	"fmt"
 )
 
 // Event : an event struct
 type Event struct {
-	ID		 int
-	Name   string
-	Link   string
-	Month  string
-	Days   []string
+	ID             int
+	Name           string
+	Link           string
+	Month          string
+	Days           []string
 	IndividualDays []string
 	FestivalLength int
-	Next   *Event
+	Next           *Event
 }
 
 // AddBeginning :  append new event to beginning of list
@@ -31,10 +31,9 @@ func PrintList(eventList *Event) {
 
 // PrintListByMonth :  print all event for a given month
 func PrintListByMonth(e *Event, s string) {
-	for i:=e; i != nil; i = i.Next {
+	for i := e; i != nil; i = i.Next {
 		if i.Month == s {
 			fmt.Println(i.Name, i.Link, i.Month, i.Days, i.IndividualDays)
 		}
 	}
 }
-

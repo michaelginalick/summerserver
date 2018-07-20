@@ -2,14 +2,15 @@ package eventsController
 
 import (
 	"database/sql"
-	"github.com/lib/pq"
-	"net/http"
-	"../../../db"
-	"../../../structs"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
+
+	"../../../db"
+	"../../../structs"
 	"github.com/gorilla/mux"
+	"github.com/lib/pq"
 )
 
 func parseToIntSlice(e *[]int) *[]int {
@@ -23,7 +24,6 @@ func parseToIntSlice(e *[]int) *[]int {
 	return &newDays
 }
 
-
 // GetEvents :  returns all the events
 func GetEvents(w http.ResponseWriter, r *http.Request) {
 
@@ -32,13 +32,11 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 	sqlStatement := `select * from events;`
 	rows, _ := db.Query(sqlStatement)
 
-
 	formatAndReturnJSONResponse(rows, w)
 	db.Close()
-	
+
 	return
 }
-
 
 // GetEventByID : by event by id
 func GetEventByID(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +52,6 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 
 // GetEventsByMonth : by events by month
 func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +71,6 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 
 func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 
@@ -110,7 +106,6 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 	setHeaders(w)
 	fmt.Fprintf(w, string(out))
 }
-
 
 func setHeaders(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

@@ -2,16 +2,14 @@ package eventsController
 
 import (
 	"database/sql"
+	"github.com/lib/pq"
+	"net/http"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strconv"
-
-	"github.com/lib/pq"
-
+	"github.com/gorilla/mux"
 	"../../../webScrapper/db"
 	"../../../webScrapper/structs"
-	"github.com/gorilla/mux"
 )
 
 func parseToIntSlice(e *[]int) *[]int {

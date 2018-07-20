@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	_ "github.com/lib/pq"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"

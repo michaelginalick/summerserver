@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"github.com/lib/pq"
 	"net/http"
-	"../../../db"
-	"../../../structs"
 	"encoding/json"
 	"fmt"
 	"strconv"
 	"github.com/gorilla/mux"
+	"../../../webScrapper/db"
+	"../../../webScrapper/structs"
 )
 
 func parseToIntSlice(e *[]int) *[]int {

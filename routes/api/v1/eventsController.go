@@ -1,14 +1,14 @@
 package eventsController
 
 import (
-	"database/sql"
-	"net/http"
-	"encoding/json"
-	"fmt"
-	"strconv"
-	"github.com/gorilla/mux"
 	"../../../webScrapper/db"
 	"../../../webScrapper/structs"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
+	"strconv"
 )
 
 func parseToIntSlice(e *[]int) *[]int {
@@ -51,7 +51,7 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 									 inner join days on events.id=days.event_id  
 									 where events.id=$1
 									 order by days.day;`
-	
+
 	rows, _ := db.Query(sqlStatement, id)
 	formatAndReturnJSONResponse(rows, w)
 	db.Close()
@@ -68,7 +68,7 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	sqlStatement := `select events.id, name, link, month, day from events 
 									 inner join days on events.id=days.event_id 
 									 where events.month=$1 order by days.day;`
-	
+
 	rows, err := db.Query(sqlStatement, month)
 
 	if err != nil {

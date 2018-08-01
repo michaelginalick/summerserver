@@ -6,12 +6,15 @@ CREATE TABLE events (
 	name VARCHAR(255) NOT NULL,
 	link VARCHAR(255) NOT NULL,
 	month VARCHAR(255),
-	days VARCHAR(255),
 	year VARCHAR(255),
-	individual_days VARCHAR(255),
-	festival_length VARCHAR(255),
 	CONSTRAINT Events_pk PRIMARY KEY (id)
 );
 
+
+CREATE TABLE days (
+	id serial NOT NULL,
+	day integer NOT NULL,
+	event_id integer REFERENCES events
+);
 
 

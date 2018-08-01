@@ -2,12 +2,11 @@ package main
 
 import (
 	"./routes/api/v1"
-	"log"
-	"net/http"
-	_ "github.com/lib/pq"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"log"
+	"net/http"
 )
 
 func main() {
@@ -21,4 +20,3 @@ func main() {
 	allowedMethods := handlers.AllowedMethods([]string{"GET"})
 	log.Fatal(http.ListenAndServe(":8000", handlers.CORS(allowedOrigins, allowedMethods)(router)))
 }
-

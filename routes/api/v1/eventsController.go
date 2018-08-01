@@ -1,15 +1,14 @@
 package eventsController
 
 import (
-	"database/sql"
-	"github.com/lib/pq"
-	"net/http"
-	"encoding/json"
-	"fmt"
-	"strconv"
-	"github.com/gorilla/mux"
 	"../../../webScrapper/db"
 	"../../../webScrapper/structs"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
+	"strconv"
 )
 
 func parseToIntSlice(e *[]int) *[]int {
@@ -28,7 +27,10 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select * from events;`
+	sqlStatement := `select events.id, name, link, month, day 
+									 from events
+									 inner join days on events.id = days.event_id
+									 order by days.day;`
 	rows, _ := db.Query(sqlStatement)
 
 	formatAndReturnJSONResponse(rows, w)
@@ -44,7 +46,12 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select * from events where id = $1;`
+	sqlStatement := `select events.id, name, link, month, day 
+									 from events 
+									 inner join days on events.id=days.event_id  
+									 where events.id=$1
+									 order by days.day;`
+
 	rows, _ := db.Query(sqlStatement, id)
 	formatAndReturnJSONResponse(rows, w)
 	db.Close()
@@ -58,7 +65,10 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	month := vars["month"]
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select * from events where month=$1;`
+	sqlStatement := `select events.id, name, link, month, day from events 
+									 inner join days on events.id=days.event_id 
+									 where events.month=$1 order by days.day;`
+
 	rows, err := db.Query(sqlStatement, month)
 
 	if err != nil {
@@ -83,9 +93,7 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 			&event.Name,
 			&event.Link,
 			&event.Month,
-			pq.Array(&event.Days),
-			pq.Array(&event.IndividualDays),
-			&event.FestivalLength,
+			&event.Day,
 		)
 
 		if err != nil {

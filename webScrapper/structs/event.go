@@ -13,7 +13,7 @@ type Event struct {
 	Days           []string
 	Year					 string
 	IndividualDays []string
-	FestivalLength int
+	Day 						int
 	Next           *Event
 }
 

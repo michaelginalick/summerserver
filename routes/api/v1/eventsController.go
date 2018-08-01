@@ -27,7 +27,7 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select events.id, name, link, month, day 
+	sqlStatement := `select events.id, name, link, month, year, day 
 									 from events
 									 inner join days on events.id = days.event_id
 									 order by days.day;`
@@ -46,7 +46,7 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select events.id, name, link, month, day 
+	sqlStatement := `select events.id, name, link, month, year, day 
 									 from events 
 									 inner join days on events.id=days.event_id  
 									 where events.id=$1
@@ -65,7 +65,8 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	month := vars["month"]
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select events.id, name, link, month, day from events 
+	sqlStatement := `select events.id, name, link, month, year, day 
+									 from events 
 									 inner join days on events.id=days.event_id 
 									 where events.month=$1 order by days.day;`
 
@@ -93,6 +94,7 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 			&event.Name,
 			&event.Link,
 			&event.Month,
+			&event.Year,
 			&event.Day,
 		)
 

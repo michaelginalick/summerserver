@@ -6,7 +6,6 @@ import (
 	"log"
 
 	event "../structs"
-	"github.com/lib/pq"
 )
 
 const (
@@ -41,12 +40,20 @@ func SaveRecords(e *event.Event) {
 	defer db.Close()
 
 	for i := e; i != nil; i = i.Next {
+		id := 0
+
 		if !isPresent(i, db) {
-			_, err := db.Exec(
-				"INSERT INTO  events (name, link, month, days, year, individual_days, festival_length) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-				i.Name, i.Link, i.Month, pq.Array(i.Days), i.Year, pq.Array(i.IndividualDays), i.FestivalLength,
-			)
+			sqlStatement := `INSERT INTO  events (name, link, month, year) VALUES ($1, $2, $3, $4) RETURNING id`
+			err := db.QueryRow(sqlStatement, i.Name, i.Link, i.Month, i.Year).Scan(&id)
 			checkErr(err)
+
+			for j := 0; j < len(i.IndividualDays); j++ {
+				_, err := db.Exec(
+					"INSERT INTO days (day, event_id) VALUES ($1, $2)",
+					i.IndividualDays[j], id,
+				)
+				checkErr(err)
+			}
 		}
 	}
 	db.Close()

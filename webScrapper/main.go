@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
 	"./calendar"
 	"./db"
 	"./structs"
@@ -58,13 +57,12 @@ func scrapeEventPage() {
 			days = days[:len(days)-1]
 		}
 
-		if len(days) > 1 {
+		if len(days) >= 1 {
 			firstInt, lastInt := firstAndLastElement(days)
 			individualDays = getIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event.Event{0, name, link, month, days, year, individualDays, len(individualDays), nil}
-
+		newEvent := &event.Event{0, name, link, month, days, year, individualDays, nil}
 		eventList = event.AddBeginning(newEvent, eventList)
 	})
 

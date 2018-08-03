@@ -4,14 +4,12 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"regexp"
-	"strconv"
-	"strings"
-	"./calendar"
 	"./db"
 	"./structs"
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/lib/pq"
+	"../sharedFunctions/stringutil"
+    "../sharedFunctions/numutil"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"
@@ -36,15 +34,15 @@ func scrapeEventPage() {
 		log.Fatal(err)
 	}
 
-	eventList := &event.Event{}
+	eventList := event.List()
 
 	// Find the events
 	doc.Find("h3").Each(func(i int, s *goquery.Selection) {
 		name := s.Find("a").Text()
 		link, _ := s.Find("a").Attr("href")
 		date := s.Text()
-		month, i, err := extractMonthDate(date)
-		days := extractDays(date, i)
+		month, i, err := str.ExtractMonthDate(date)
+		days := str.ExtractDays(date, i)
 		year, _ := extractYear(days)
 		individualDays := make([]string, 0)
 
@@ -58,11 +56,11 @@ func scrapeEventPage() {
 		}
 
 		if len(days) >= 1 {
-			firstInt, lastInt := firstAndLastElement(days)
-			individualDays = getIndividualDays(firstInt, lastInt)
+			firstInt, lastInt := str.FirstAndLastElement(days)
+			individualDays = nums.GetIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event.Event{0, name, link, month, days, year, individualDays, nil}
+		newEvent := &event.Event{0, name, link, month, days, year, individualDays, 0, nil}
 		eventList = event.AddBeginning(newEvent, eventList)
 	})
 
@@ -73,70 +71,6 @@ func scrapeEventPage() {
 
 func main() {
 	scrapeEventPage()
-}
-
-func firstAndLastElement(days []string) (int, int) {
-	first := days[0]
-	last := days[len(days)-1]
-
-	firstInt, _ := convInt(first)
-	lastInt, _ := convInt(last)
-
-	return firstInt, lastInt
-}
-
-func extractMonthDate(s string) (string, int, error) {
-	parseDate := parseFields(s)
-
-	for i := 0; i < len(parseDate); i++ {
-
-		monthValue := calendar.GetMonth(parseDate[i])
-
-		if monthValue.Name != "" {
-			return strings.ToLower(monthValue.Name), i + 1, nil
-		}
-	}
-	return "", 0, errors.New("No date is listed with this event")
-}
-
-func extractDays(s string, i int) []string {
-	date := parseFields(s)
-
-	x := ""
-	for j := i; j < len(date); j++ {
-		x += " "
-		x += string(date[j])
-	}
-
-	re := regexp.MustCompile("[0-9]+")
-	return re.FindAllString(x, -1)
-}
-
-func parseFields(s string) []string {
-	return strings.Fields(s)
-}
-
-func convInt(s string) (int, error) {
-	i, err := strconv.Atoi(s)
-
-	if err != nil {
-		return 0, errors.New("cannot convert to integer")
-	}
-
-	return i, nil
-}
-
-func getIndividualDays(firstInt, lastInt int) []string {
-	var s []string
-
-	i := firstInt
-
-	for i <= lastInt {
-		j := strconv.Itoa(i)
-		s = append(s, j)
-		i++
-	}
-	return s
 }
 
 func extractYear(days []string) (string, error) {

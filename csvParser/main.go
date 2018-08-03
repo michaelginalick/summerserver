@@ -15,11 +15,15 @@ import (
 
 func main() {
 	csvFile, _ := os.Open("events.csv")
-	reader := csv.NewReader(bufio.NewReader(csvFile))
+	fileReader := csv.NewReader(bufio.NewReader(csvFile))
 	eventList := event.List()
 
-	for {
-		line, error := reader.Read()
+    parseDocument(fileReader, eventList)
+}
+
+func parseDocument(fileReader *csv.Reader, eventList *event.Event) {
+    for {
+		line, error := fileReader.Read()
 		if error == io.EOF {
 			break
 		} else if error != nil {
@@ -42,10 +46,6 @@ func main() {
 	}
 
 	db.SaveRecords(eventList)
-}
-
-func parseDocument() {
-
 }
 
 func extractDay(line string) int {

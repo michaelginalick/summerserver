@@ -11,10 +11,15 @@ type Event struct {
 	Link           string
 	Month          string
 	Days           []string
-	Year					 string
+	Year           string
 	IndividualDays []string
-	Day 						int
+	Day            int
 	Next           *Event
+}
+
+// List : return a new event list
+func List() *Event {
+	return &Event{}
 }
 
 // AddBeginning :  append new event to beginning of list

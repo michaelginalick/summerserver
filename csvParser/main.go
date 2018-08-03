@@ -1,22 +1,22 @@
 package main
 
 import (
-    "../webScrapper/structs"
-    "../webScrapper/db"
+	"../sharedFunctions/numutil"
+	"../sharedFunctions/stringutil"
+	"../webScrapper/db"
+	"../webScrapper/structs"
 	"bufio"
 	"encoding/csv"
+	_ "github.com/lib/pq"
 	"io"
 	"log"
 	"os"
-    "../sharedFunctions/stringutil"
-    "../sharedFunctions/numutil"
-    _ "github.com/lib/pq"
 )
 
 func main() {
 	csvFile, _ := os.Open("events.csv")
-    reader := csv.NewReader(bufio.NewReader(csvFile))
-    eventList := event.List()
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+	eventList := event.List()
 
 	for {
 		line, error := reader.Read()
@@ -39,11 +39,10 @@ func main() {
 
 		newEvent := &event.Event{0, line[0], line[3], month, days, year, individualDays, singleDay, nil}
 		eventList = event.AddBeginning(newEvent, eventList)
-    }
-    
-    db.SaveRecords(eventList)
-}
+	}
 
+	db.SaveRecords(eventList)
+}
 
 func parseDocument() {
 

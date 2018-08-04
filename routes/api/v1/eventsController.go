@@ -8,19 +8,9 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
+	"strings"
 )
 
-func parseToIntSlice(e *[]int) *[]int {
-	h := *e
-	newDays := make([]int, 0)
-	for i := 0; i < len(h); i++ {
-		s, _ := strconv.Atoi(string(h[i]))
-		newDays = append(newDays, s)
-	}
-
-	return &newDays
-}
 
 // GetEvents :  returns all the events
 func GetEvents(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +52,7 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 // GetEventsByMonth : by events by month
 func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	month := vars["month"]
+	month := strings.ToLower(vars["month"])
 	db := db.OpenDB()
 	defer db.Close()
 	sqlStatement := `select events.id, name, link, month, year, day 

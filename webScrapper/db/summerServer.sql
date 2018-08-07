@@ -7,6 +7,7 @@ CREATE TABLE events (
 	link VARCHAR(255) NOT NULL,
 	month VARCHAR(255),
 	year VARCHAR(255),
+	location VARCHAR(255),
 	CONSTRAINT Events_pk PRIMARY KEY (id)
 );
 

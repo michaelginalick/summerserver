@@ -55,7 +55,7 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	month := strings.ToLower(vars["month"])
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select events.id, name, link, month, year, day 
+	sqlStatement := `select events.id, name, link, month, year, day, location
 									 from events 
 									 inner join days on events.id=days.event_id 
 									 where events.month=$1 order by days.day;`
@@ -86,6 +86,7 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 			&event.Month,
 			&event.Year,
 			&event.Day,
+			&event.Location,
 		)
 
 		if err != nil {

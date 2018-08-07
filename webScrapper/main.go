@@ -60,7 +60,7 @@ func scrapeEventPage() {
 			individualDays = nums.GetIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event.Event{0, name, link, month, days, year, individualDays, 0, nil}
+		newEvent := &event.Event{0, name, link, month, days, year, individualDays, 0, "", nil}
 		eventList = event.AddBeginning(newEvent, eventList)
 	})
 

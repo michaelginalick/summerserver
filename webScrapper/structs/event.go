@@ -14,6 +14,7 @@ type Event struct {
 	Year           string
 	IndividualDays []string
 	Day            int
+	Location			 string
 	Next           *Event
 }
 

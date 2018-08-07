@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"../sharedFunctions/numutil"
 	"../sharedFunctions/stringutil"
 	"../webScrapper/db"
@@ -29,19 +30,21 @@ func parseDocument(fileReader *csv.Reader, eventList *event.Event) {
 		} else if error != nil {
 			log.Fatal(error)
 		}
+
 		dateInfo := line[1]
 		month, i, _ := str.ExtractMonthDate(dateInfo)
 		days := str.ExtractDays(dateInfo, i)
 		year := extractYear(dateInfo)
 		individualDays := make([]string, 0)
 		singleDay := extractDay(dateInfo)
+		name := strings.Trim(line[0], " ")
 
 		if len(days) >= 1 {
 			firstInt, lastInt := str.FirstAndLastElement(days)
 			individualDays = nums.GetIndividualDays(firstInt, lastInt)
 		}
 
-		newEvent := &event.Event{0, line[0], line[3], month, days, year, individualDays, singleDay, nil}
+		newEvent := &event.Event{0, name, line[3], month, days, year, individualDays, singleDay, line[2], nil}
 		eventList = event.AddBeginning(newEvent, eventList)
 	}
 

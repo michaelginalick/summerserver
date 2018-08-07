@@ -43,8 +43,8 @@ func SaveRecords(e *event.Event) {
 		id := 0
 
 		if !isPresent(i, db) {
-			sqlStatement := `INSERT INTO  events (name, link, month, year) VALUES ($1, $2, $3, $4) RETURNING id`
-			err := db.QueryRow(sqlStatement, i.Name, i.Link, i.Month, i.Year).Scan(&id)
+			sqlStatement := `INSERT INTO  events (name, link, month, year, location) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+			err := db.QueryRow(sqlStatement, i.Name, i.Link, i.Month, i.Year, i.Location).Scan(&id)
 			checkErr(err)
 
 			for j := 0; j < len(i.IndividualDays); j++ {

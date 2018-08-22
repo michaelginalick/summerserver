@@ -53,14 +53,16 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	month := strings.ToLower(vars["month"])
+	year := strings.ToLower(vars["year"])
 	db := db.OpenDB()
 	defer db.Close()
 	sqlStatement := `select events.id, name, link, month, year, day, location
 									 from events 
 									 inner join days on events.id=days.event_id 
-									 where events.month=$1 order by days.day;`
+									 where events.month=$1 and events.year=$2
+									 order by days.day;`
 
-	rows, err := db.Query(sqlStatement, month)
+	rows, err := db.Query(sqlStatement, month, year)
 
 	if err != nil {
 		panic(err)

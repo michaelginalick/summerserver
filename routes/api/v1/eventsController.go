@@ -1,8 +1,8 @@
-package eventsController
+package eventscontroller
 
 import (
-	"../../../webScrapper/db"
-	"../../../webScrapper/structs"
+	"../../../db"
+	"../../../structs"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -17,7 +17,7 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select events.id, name, link, month, year, day 
+	sqlStatement := `select events.id, name, link, month, year, day, location
 									 from events
 									 inner join days on events.id = days.event_id
 									 order by days.day;`
@@ -36,7 +36,7 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	db := db.OpenDB()
 	defer db.Close()
-	sqlStatement := `select events.id, name, link, month, year, day 
+	sqlStatement := `select events.id, name, link, month, year, day, location
 									 from events 
 									 inner join days on events.id=days.event_id  
 									 where events.id=$1

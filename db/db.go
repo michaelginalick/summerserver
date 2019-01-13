@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-
 	event "../structs"
 )
 
@@ -41,7 +40,6 @@ func SaveRecords(e *event.Event) {
 
 	for i := e; i != nil; i = i.Next {
 		id := 0
-
 		if !isPresent(i, db) {
 			sqlStatement := `INSERT INTO  events (name, link, month, year, location) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 			err := db.QueryRow(sqlStatement, i.Name, i.Link, i.Month, i.Year, i.Location).Scan(&id)
@@ -61,8 +59,8 @@ func SaveRecords(e *event.Event) {
 
 func isPresent(e *event.Event, db *sql.DB) (exists bool) {
 
-	sqlStatement := `select exists(select 1 from events where name = $1);`
-	rows, err := db.Query(sqlStatement, e.Name)
+	sqlStatement := `select exists(select 1 from events where name = $1 and year = $2);`
+	rows, err := db.Query(sqlStatement, e.Name, e.Year)
 
 	checkErr(err)
 

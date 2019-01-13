@@ -26,6 +26,10 @@ func GetMonth(s string) Value {
 		"Sept":      {"September", 30},
 		"Feb":       {"February", 28},
 		"Apr":       {"April", 30},
+		"Jan.":			 {"January", 31},
+		"JAN.":			 {"January", 31},
+		"Feb.":			 {"February", 28},
+		"FEB.":			 {"February", 28},
 	}
 
 	return calendarMap[s]

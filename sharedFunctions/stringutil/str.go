@@ -1,7 +1,7 @@
 package str
 
 import (
-	"../../webScrapper/calendar"
+	"../calendar"
 	"errors"
 	"regexp"
 	"strconv"

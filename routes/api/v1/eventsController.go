@@ -1,16 +1,34 @@
 package eventscontroller
 
 import (
-	"../../../db"
-	"../../../structs"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
+	"../../../db"
+	event "../../../structs/"
+	"github.com/gorilla/mux"
 )
 
+// CreateEvent creates an event
+func CreateEvent(w http.ResponseWriter, r *http.Request) {
+
+	decoder := json.NewDecoder(r.Body)
+	newEvent := event.Event{}
+
+	err := decoder.Decode(&newEvent)
+	if err != nil {
+		panic(err)
+	}
+	newEvent = event.Event{0, newEvent.Name, newEvent.Link, 
+													newEvent.Month, nil, 
+													newEvent.Year, newEvent.IndividualDays, 
+													0, newEvent.Location, nil}
+	db.SaveRecords(&newEvent)
+	setHeaders(w)
+	return
+}
 
 // GetEvents :  returns all the events
 func GetEvents(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +79,6 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 									 inner join days on events.id=days.event_id 
 									 where events.month=$1 and events.year=$2
 									 order by days.day;`
-
 	rows, err := db.Query(sqlStatement, month, year)
 
 	if err != nil {
@@ -98,6 +115,7 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 	}
 
 	out, err := json.Marshal(events)
+	
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

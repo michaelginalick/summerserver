@@ -4,12 +4,13 @@ import (
 	"errors"
 	"log"
 	"net/http"
+
 	"../db"
-	"../structs"
+	nums "../sharedFunctions/numutil"
+	str "../sharedFunctions/stringutil"
+	event "../structs"
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/lib/pq"
-	"../sharedFunctions/stringutil"
-		"../sharedFunctions/numutil"
 )
 
 const link = "https://www.choosechicago.com/events-and-shows/festivals-guide/"

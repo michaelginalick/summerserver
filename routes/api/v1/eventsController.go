@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
 	"../../../db"
 	event "../../../structs/"
 	"github.com/gorilla/mux"
@@ -13,18 +14,18 @@ import (
 
 // CreateEvent creates an event
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
-
 	decoder := json.NewDecoder(r.Body)
+
 	newEvent := event.Event{}
 
 	err := decoder.Decode(&newEvent)
 	if err != nil {
 		panic(err)
 	}
-	newEvent = event.Event{0, newEvent.Name, newEvent.Link, 
-													newEvent.Month, nil, 
-													newEvent.Year, newEvent.IndividualDays, 
-													0, newEvent.Location, nil}
+	newEvent = event.Event{0, newEvent.Name, newEvent.Link,
+		newEvent.Month, nil,
+		newEvent.Year, newEvent.IndividualDays,
+		0, newEvent.Location, nil}
 	db.SaveRecords(&newEvent)
 	setHeaders(w)
 	return
@@ -84,7 +85,6 @@ func GetEventsByMonth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-
 	formatAndReturnJSONResponse(rows, w)
 	db.Close()
 
@@ -95,7 +95,6 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 
 	defer rows.Close()
 	events := []event.Event{}
-
 	for rows.Next() {
 		event := event.Event{}
 		err := rows.Scan(
@@ -115,7 +114,7 @@ func formatAndReturnJSONResponse(rows *sql.Rows, w http.ResponseWriter) {
 	}
 
 	out, err := json.Marshal(events)
-	
+
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

@@ -1,29 +1,30 @@
 package main
 
 import (
-	"strings"
-	"../sharedFunctions/numutil"
-	"../sharedFunctions/stringutil"
-	"../webScrapper/db"
-	"../webScrapper/structs"
 	"bufio"
 	"encoding/csv"
-	_ "github.com/lib/pq"
 	"io"
 	"log"
 	"os"
+	"strings"
+
+	"../db"
+	nums "../sharedFunctions/numutil"
+	str "../sharedFunctions/stringutil"
+	event "../structs"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	csvFile, _ := os.Open("events.csv")
+	csvFile, _ := os.Open("events_2019.csv")
 	fileReader := csv.NewReader(bufio.NewReader(csvFile))
 	eventList := event.List()
 
-    parseDocument(fileReader, eventList)
+	parseDocument(fileReader, eventList)
 }
 
 func parseDocument(fileReader *csv.Reader, eventList *event.Event) {
-    for {
+	for {
 		line, error := fileReader.Read()
 		if error == io.EOF {
 			break
@@ -56,5 +57,5 @@ func extractDay(line string) int {
 }
 
 func extractYear(line string) string {
-	return "2018"
+	return "2019"
 }

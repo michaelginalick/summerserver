@@ -18,4 +18,8 @@ CREATE TABLE days (
 	event_id integer REFERENCES events
 );
 
+CREATE INDEX events_id ON events (id);
+CREATE INDEX days_id ON days (id);
+CREATE INDEX event_id ON days (event_id);
+
 

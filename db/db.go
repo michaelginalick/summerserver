@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
 	event "../structs"
 )
 
@@ -37,15 +38,13 @@ func SaveRecords(e *event.Event) {
 	db := OpenDB()
 
 	defer db.Close()
-
 	for i := e; i != nil; i = i.Next {
 		id := 0
 		if !isPresent(i, db) {
 			sqlStatement := `INSERT INTO  events (name, link, month, year, location) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 			err := db.QueryRow(sqlStatement, i.Name, i.Link, i.Month, i.Year, i.Location).Scan(&id)
 			checkErr(err)
-
-			for j := 0; j < len(i.IndividualDays); j++ {
+			for j := 0; j <= len(i.IndividualDays); j++ {
 				_, err := db.Exec(
 					"INSERT INTO days (day, event_id) VALUES ($1, $2)",
 					i.IndividualDays[j], id,

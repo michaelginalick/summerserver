@@ -1,11 +1,12 @@
 package str
 
 import (
-	"../calendar"
 	"errors"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"../calendar"
 )
 
 // ExtractMonthDate :  extracts the month from a string
@@ -26,16 +27,16 @@ func ExtractMonthDate(line string) (string, int, error) {
 // ExtractDays :  extracts the days from a string
 func ExtractDays(s string, i int) []string {
 	date := parseFields(s)
-	
-	var x strings.Builder
-	x.WriteString("")
+
+	var strBuilder strings.Builder
+	strBuilder.WriteString("")
 	for j := i; j < len(date); j++ {
-		x.WriteString(" ")
-		x.WriteString(string(date[j]))
+		strBuilder.WriteString(" ")
+		strBuilder.WriteString(string(date[j]))
 	}
 
 	re := regexp.MustCompile("[0-9]+")
-	return re.FindAllString(x.String(), -1)
+	return re.FindAllString(strBuilder.String(), -1)
 }
 
 // FirstAndLastElement :  gets first and last element in string slice
